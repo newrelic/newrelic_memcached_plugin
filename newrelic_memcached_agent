@@ -1,0 +1,110 @@
+#!/usr/bin/env ruby
+require "rubygems"
+require "bundler/setup"
+require "newrelic_plugin"
+require 'dalli' # Memcached driver
+
+#
+#
+# NOTE: Please add the following lines to your Gemfile:
+#     gem "newrelic_plugin", git: "git@github.com:newrelic-platform/newrelic_plugin.git"
+#     gem "dalli"
+#
+#
+# Note: You must have a config/newrelic_plugin.yml file that
+#       contains the following information in order to use
+#       this Gem:
+#
+#       newrelic:
+#         # Update with your New Relic account license key:
+#         license_key: 'put_your_license_key_here'
+#         # Set to '1' for verbose output, remove for normal output.
+#         # All output goes to stdout/stderr.
+#         verbose: 1
+#       agents:
+#         memcached:
+#           -
+#             name: "Our Memcache Instance"
+#             endpoint: "hostname"
+#
+#
+
+#
+#
+# Memcached Agent
+#
+#
+module MemcachedAgent
+
+  class Agent < NewRelic::Plugin::Agent::Base
+    agent_guid "803eadcd2773847dcbd7b78794e77ffa0b44012b"
+    agent_version "0.1.1"
+    agent_config_options :endpoint,:port
+    agent_human_labels("Memcached") { "#{endpoint}" }
+
+    def setup_metrics
+      @rusage_user=NewRelic::Processor::EpochCounter.new
+      @rusage_system=NewRelic::Processor::EpochCounter.new
+      @total_connections=NewRelic::Processor::EpochCounter.new
+      @cmd_get=NewRelic::Processor::EpochCounter.new
+      @cmd_set=NewRelic::Processor::EpochCounter.new
+      @cmd_flush=NewRelic::Processor::EpochCounter.new
+      @get_hits=NewRelic::Processor::EpochCounter.new
+      @get_misses=NewRelic::Processor::EpochCounter.new
+      @delete_hits=NewRelic::Processor::EpochCounter.new
+      @delete_misses=NewRelic::Processor::EpochCounter.new
+      @incr_hits=NewRelic::Processor::EpochCounter.new
+      @incr_misses=NewRelic::Processor::EpochCounter.new
+      @decr_hits=NewRelic::Processor::EpochCounter.new
+      @decr_misses=NewRelic::Processor::EpochCounter.new
+      @cas_hits=NewRelic::Processor::EpochCounter.new
+      @cas_misses=NewRelic::Processor::EpochCounter.new
+      @cas_badval=NewRelic::Processor::EpochCounter.new
+      @bytes_read=NewRelic::Processor::EpochCounter.new
+      @bytes_written=NewRelic::Processor::EpochCounter.new
+      @total_items=NewRelic::Processor::EpochCounter.new
+      @evictions=NewRelic::Processor::EpochCounter.new
+      @reclaimed=NewRelic::Processor::EpochCounter.new
+    end
+    def poll_cycle
+      hostname_and_port="#{self.endpoint}:#{self.port||11211}"
+      stats=Dalli::Client.new(hostname_and_port).stats[hostname_and_port]
+      report_metric "Rusage/User","CPU",                     @rusage_user.process(stats["rusage_user"])
+      report_metric "Rusage/System","CPU",                   @rusage_system.process(stats["rusage_system"])
+      report_metric "Connections/Rate","Connections/Seconds",@total_connections.process(stats["total_connections"])
+      report_metric "Connections/Current","Connections",     stats["curr_connections"]
+      report_metric "Cmd/Get","Commands/Seconds",            @cmd_get.process(stats["cmd_get"])
+      report_metric "Cmd/Set","Commands/Seconds",            @cmd_set.process(stats["cmd_set"])
+      report_metric "Cmd/Flush","Commands/Seconds",          @cmd_flush.process(stats["cmd_flush"])
+      report_metric "Get/Hits","Commands/Seconds",           @get_hits.process(stats["get_hits"])
+      report_metric "Get/Misses","Commands/Seconds",         @get_misses.process(stats["get_misses"])
+      report_metric "Delete/Hits","Commands/Seconds",        @delete_hits.process(stats["delete_hits"])
+      report_metric "Delete/Misses","Commands/Seconds",      @delete_misses.process(stats["delete_misses"])
+      report_metric "Incr/Hits","Commands/Seconds",          @incr_hits.process(stats["incr_hits"])
+      report_metric "Incr/Misses","Commands/Seconds",        @incr_misses.process(stats["incr_misses"])
+      report_metric "Decr/Hits","Commands/Seconds",          @decr_hits.process(stats["decr_hits"])
+      report_metric "Decr/Misses","Commands/Seconds",        @decr_misses.process(stats["decr_misses"])
+      report_metric "CAS/Hits","Commands/Seconds",           @cas_hits.process(stats["cas_hits"])
+      report_metric "CAS/Misses","Commands/Seconds",         @cas_misses.process(stats["cas_misses"])
+      report_metric "CAS/Badval","Commands/Seconds",         @cas_badval.process(stats["cas_badval"])
+      report_metric "Memory/Used","Bytes",                   stats["bytes"]
+      report_metric "Memory/MaxAvailable","Bytes",           stats["limit_maxbytes"]
+      report_metric "Bytes/Read","Bytes/Seconds",            @bytes_read.process(stats["bytes_read"])
+      report_metric "Bytes/Written","Bytes/Seconds",         @bytes_written.process(stats["bytes_written"])
+      report_metric "Threads","Threads",                     stats["threads"]
+      report_metric "Items/Current","Items",                 stats["curr_items"]
+      report_metric "Items/Rate","Items/Seconds",            @total_items.process(stats["total_items"])
+      report_metric "Items/Evictions","Evictions/Seconds",   @evictions.process(stats["evictions"])
+      report_metric "Items/Reclaims","Reclaims/Seconds",     @reclaimed.process(stats["reclaimed"])
+    end
+
+  end
+
+  NewRelic::Plugin::Setup.install_agent :memcached,MemcachedAgent
+
+  #
+  # Launch the agent (never returns)
+  #
+  NewRelic::Plugin::Run.setup_and_run
+
+end
