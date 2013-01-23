@@ -37,8 +37,8 @@ require 'dalli' # Memcached driver
 module MemcachedAgent
 
   class Agent < NewRelic::Plugin::Agent::Base
-    agent_guid "803eadcd2773847dcbd7b78794e77ffa0b44012b"
-    agent_version "0.1.1"
+    agent_guid "d1678ea27dc7525eaf623dd243ed3d9b8a7eff74"
+    agent_version "0.1.2"
     agent_config_options :endpoint,:port
     agent_human_labels("Memcached") { "#{endpoint}" }
 
