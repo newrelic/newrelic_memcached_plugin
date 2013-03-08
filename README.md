@@ -2,7 +2,7 @@
 
 ### Instructions for running the Memcached extension agent
 
-1. Go to the tags list and find the latest tar.gz
+1. Go to [the tags list](https://github.com/newrelic-platform/newrelic_memcached_plugin/tags) and find the latest tar.gz
 1. Download and extract the source
 1. Run `bundle install` to install required gems
 1. Copy `config/template_newrelic_plugin.yml` to `config/newrelic_plugin.yml`
