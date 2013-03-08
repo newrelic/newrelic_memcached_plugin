@@ -9,3 +9,4 @@
 1. Edit `config/newrelic_plugin.yml` by replacing "YOUR_LICENSE_KEY_HERE" with your New Relic license key
 1. Edit the `config/newrelic_plugin.yml` file by changing the name and endpoint fields to match your memcached server configuration
 1. Execute `./newrelic_memcached_agent`
+1. Go back to the Extensions list and after a brief period you will see an entry for your extension
