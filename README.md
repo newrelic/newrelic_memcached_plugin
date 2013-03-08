@@ -1,6 +1,6 @@
-## New Relic Memcached Plugin
+## New Relic Memcached Extension
 
-### Instructions for running the Memcached plugin agent
+### Instructions for running the Memcached extension agent
 
 1. Go to the tags list and find the latest tar.gz
 1. Download and extract the source
