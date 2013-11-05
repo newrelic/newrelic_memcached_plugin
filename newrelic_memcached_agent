@@ -37,65 +37,90 @@ require 'dalli' # Memcached driver
 module MemcachedAgent
 
   class Agent < NewRelic::Plugin::Agent::Base
-    agent_guid "com.newrelic.memcached.ruby"
-    agent_version "0.1.3"
+    agent_guid "com.newrelic.plugins.memcached.ruby"
+    agent_version "1.0.0"
     agent_config_options :endpoint,:port
     agent_human_labels("Memcached") { "#{endpoint}" }
 
     def setup_metrics
-      @rusage_user=NewRelic::Processor::EpochCounter.new
-      @rusage_system=NewRelic::Processor::EpochCounter.new
-      @total_connections=NewRelic::Processor::EpochCounter.new
-      @cmd_get=NewRelic::Processor::EpochCounter.new
-      @cmd_set=NewRelic::Processor::EpochCounter.new
-      @cmd_flush=NewRelic::Processor::EpochCounter.new
-      @get_hits=NewRelic::Processor::EpochCounter.new
-      @get_misses=NewRelic::Processor::EpochCounter.new
-      @delete_hits=NewRelic::Processor::EpochCounter.new
-      @delete_misses=NewRelic::Processor::EpochCounter.new
-      @incr_hits=NewRelic::Processor::EpochCounter.new
-      @incr_misses=NewRelic::Processor::EpochCounter.new
-      @decr_hits=NewRelic::Processor::EpochCounter.new
-      @decr_misses=NewRelic::Processor::EpochCounter.new
-      @cas_hits=NewRelic::Processor::EpochCounter.new
-      @cas_misses=NewRelic::Processor::EpochCounter.new
-      @cas_badval=NewRelic::Processor::EpochCounter.new
-      @bytes_read=NewRelic::Processor::EpochCounter.new
-      @bytes_written=NewRelic::Processor::EpochCounter.new
-      @total_items=NewRelic::Processor::EpochCounter.new
-      @evictions=NewRelic::Processor::EpochCounter.new
-      @reclaimed=NewRelic::Processor::EpochCounter.new
+      @rusage_user = NewRelic::Processor::EpochCounter.new
+      @rusage_system = NewRelic::Processor::EpochCounter.new
+      @total_connections = NewRelic::Processor::EpochCounter.new
+      @cmd_get = NewRelic::Processor::EpochCounter.new
+      @cmd_set = NewRelic::Processor::EpochCounter.new
+      @cmd_flush = NewRelic::Processor::EpochCounter.new
+      @get_hits = NewRelic::Processor::EpochCounter.new
+      @get_misses = NewRelic::Processor::EpochCounter.new
+      @delete_hits = NewRelic::Processor::EpochCounter.new
+      @delete_misses = NewRelic::Processor::EpochCounter.new
+      @incr_hits = NewRelic::Processor::EpochCounter.new
+      @incr_misses = NewRelic::Processor::EpochCounter.new
+      @decr_hits = NewRelic::Processor::EpochCounter.new
+      @decr_misses = NewRelic::Processor::EpochCounter.new
+      @cas_hits = NewRelic::Processor::EpochCounter.new
+      @cas_misses = NewRelic::Processor::EpochCounter.new
+      @cas_badval = NewRelic::Processor::EpochCounter.new
+      @bytes_read = NewRelic::Processor::EpochCounter.new
+      @bytes_written = NewRelic::Processor::EpochCounter.new
+      @total_items = NewRelic::Processor::EpochCounter.new
+      @evictions = NewRelic::Processor::EpochCounter.new
+      @reclaimed = NewRelic::Processor::EpochCounter.new
     end
     def poll_cycle
-      hostname_and_port="#{self.endpoint}:#{self.port||11211}"
-      stats=Dalli::Client.new(hostname_and_port).stats[hostname_and_port]
-      report_metric "Rusage/User","CPU",                     @rusage_user.process(stats["rusage_user"])
-      report_metric "Rusage/System","CPU",                   @rusage_system.process(stats["rusage_system"])
-      report_metric "Connections/Rate","Connections/Seconds",@total_connections.process(stats["total_connections"])
-      report_metric "Connections/Current","Connections",     stats["curr_connections"]
-      report_metric "Cmd/Get","Commands/Seconds",            @cmd_get.process(stats["cmd_get"])
-      report_metric "Cmd/Set","Commands/Seconds",            @cmd_set.process(stats["cmd_set"])
-      report_metric "Cmd/Flush","Commands/Seconds",          @cmd_flush.process(stats["cmd_flush"])
-      report_metric "Get/Hits","Commands/Seconds",           @get_hits.process(stats["get_hits"])
-      report_metric "Get/Misses","Commands/Seconds",         @get_misses.process(stats["get_misses"])
-      report_metric "Delete/Hits","Commands/Seconds",        @delete_hits.process(stats["delete_hits"])
-      report_metric "Delete/Misses","Commands/Seconds",      @delete_misses.process(stats["delete_misses"])
-      report_metric "Incr/Hits","Commands/Seconds",          @incr_hits.process(stats["incr_hits"])
-      report_metric "Incr/Misses","Commands/Seconds",        @incr_misses.process(stats["incr_misses"])
-      report_metric "Decr/Hits","Commands/Seconds",          @decr_hits.process(stats["decr_hits"])
-      report_metric "Decr/Misses","Commands/Seconds",        @decr_misses.process(stats["decr_misses"])
-      report_metric "CAS/Hits","Commands/Seconds",           @cas_hits.process(stats["cas_hits"])
-      report_metric "CAS/Misses","Commands/Seconds",         @cas_misses.process(stats["cas_misses"])
-      report_metric "CAS/Badval","Commands/Seconds",         @cas_badval.process(stats["cas_badval"])
-      report_metric "Memory/Used","Bytes",                   stats["bytes"]
-      report_metric "Memory/MaxAvailable","Bytes",           stats["limit_maxbytes"]
-      report_metric "Bytes/Read","Bytes/Seconds",            @bytes_read.process(stats["bytes_read"])
-      report_metric "Bytes/Written","Bytes/Seconds",         @bytes_written.process(stats["bytes_written"])
-      report_metric "Threads","Threads",                     stats["threads"]
-      report_metric "Items/Current","Items",                 stats["curr_items"]
-      report_metric "Items/Rate","Items/Seconds",            @total_items.process(stats["total_items"])
-      report_metric "Items/Evictions","Evictions/Seconds",   @evictions.process(stats["evictions"])
-      report_metric "Items/Reclaims","Reclaims/Seconds",     @reclaimed.process(stats["reclaimed"])
+      hostname_and_port = "#{self.endpoint}:#{self.port||11211}"
+      stats = Dalli::Client.new(hostname_and_port).stats[hostname_and_port]
+
+      # System metrics
+      report_metric "System/CPU/User", "seconds", @rusage_user.process(stats["rusage_user"])
+      report_metric "System/CPU/System", "seconds", @rusage_system.process(stats["rusage_system"])
+
+      bytesUsed = stats["bytes"].to_f
+      bytesAvailable = stats["limit_maxbytes"].to_f
+      report_metric "System/Summary/Memory/Bytes/Used", "bytes", bytesUsed
+      report_metric "System/Summary/Memory/Bytes/MaxAvailable", "bytes", bytesAvailable
+      report_metric "System/Summary/Memory/Percent", "percent", bytesUsed / bytesAvailable
+
+      report_metric "System/Threads", "threads", stats["threads"]
+      report_metric "System/Connections/Creation Rate", "connections/seconds", @total_connections.process(stats["total_connections"])
+      report_metric "System/Summary/Connections/Count", "connections", stats["curr_connections"]
+      report_metric "System/Bytes/Read", "bytes/seconds", @bytes_read.process(stats["bytes_read"])
+      report_metric "System/Bytes/Written", "bytes/seconds", @bytes_written.process(stats["bytes_written"])
+
+      # CacheUse metrics
+      report_metric "CacheUse/Cmd/Gets", "commands/seconds", @cmd_get.process(stats["cmd_get"])
+      report_metric "CacheUse/Cmd/Sets", "commands/seconds", @cmd_set.process(stats["cmd_set"])
+      report_metric "CacheUse/Cmd/Flushes", "commands/seconds", @cmd_flush.process(stats["cmd_flush"])
+
+      report_cacheuse_metrics "Get", stats["get_hits"], stats["get_misses"], @get_hits, @get_misses
+      report_cacheuse_metrics "Delete", stats["delete_hits"], stats["delete_misses"], @delete_hits, @delete_misses
+      report_cacheuse_metrics "Incr", stats["incr_hits"], stats["incr_misses"], @incr_hits, @incr_misses
+      report_cacheuse_metrics "Decr", stats["decr_hits"], stats["decr_misses"], @decr_hits, @decr_misses
+
+      casHits = stats["cas_hits"].to_f
+      casMisses = stats["cas_misses"].to_f
+      casBadVal = stats["cas_badval"].to_f
+      casMissesAndBadVal = (casHits > 0 or casMisses > 0 or casBadVal > 0) ? (casMisses + casBadVal) / (casHits + casMisses + casBadVal) : 0
+      report_metric "CacheUse/Cas/Hits", "commands/seconds", @cas_hits.process(casHits)
+      report_metric "CacheUse/Cas/Misses", "commands/seconds", @cas_misses.process(casMisses)
+      report_metric "CacheUse/Cas/Badval", "commands/seconds", @cas_badval.process(casBadVal)
+      report_metric "CacheUse/Summary/Cas/MissedBadval", "percent", casMissesAndBadVal
+
+      # Item metrics
+      currItems = stats["curr_items"].to_f
+      report_metric "Items/Count", "items", currItems
+      report_metric "Items/AvgSize", "bytes", (bytesUsed > 0) ? bytesUsed / currItems : 0
+      report_metric "Items/Rate", "items/seconds", @total_items.process(stats["total_items"])
+      report_metric "Items/Actions/Evictions", "evictions/seconds", @evictions.process(stats["evictions"])
+      report_metric "Items/Actions/Reclaims", "reclaims/seconds", @reclaimed.process(stats["reclaimed"])
+    end
+
+    def report_cacheuse_metrics name, hits, misses, hitCounter, missCounter
+      hits = hits.to_f
+      misses = misses.to_f
+      percentMisses = (hits > 0 or misses > 0) ? misses / (hits + misses) : 0
+      report_metric "CacheUse/#{name}/Actions/Hits", "commands/seconds", hitCounter.process(hits)
+      report_metric "CacheUse/#{name}/Actions/Misses", "commands/seconds", missCounter.process(misses)
+      report_metric "CacheUse/Summary/#{name}/Missed", "percent", percentMisses
     end
 
   end
