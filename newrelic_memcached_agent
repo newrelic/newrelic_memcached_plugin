@@ -78,7 +78,7 @@ module MemcachedAgent
       bytesAvailable = stats["limit_maxbytes"].to_f
       report_metric "System/Summary/Memory/Bytes/Used", "bytes", bytesUsed
       report_metric "System/Summary/Memory/Bytes/MaxAvailable", "bytes", bytesAvailable
-      report_metric "System/Summary/Memory/Percent", "percent", bytesUsed / bytesAvailable
+      report_metric "System/Summary/Memory/Percent", "percent", (bytesUsed / bytesAvailable) * 100
 
       report_metric "System/Threads", "threads", stats["threads"]
       report_metric "System/Connections/Creation Rate", "connections/seconds", @total_connections.process(stats["total_connections"])
@@ -99,7 +99,7 @@ module MemcachedAgent
       casHits = stats["cas_hits"].to_f
       casMisses = stats["cas_misses"].to_f
       casBadVal = stats["cas_badval"].to_f
-      casMissesAndBadVal = (casHits > 0 or casMisses > 0 or casBadVal > 0) ? (casMisses + casBadVal) / (casHits + casMisses + casBadVal) : 0
+      casMissesAndBadVal = (casHits > 0 or casMisses > 0 or casBadVal > 0) ? ((casMisses + casBadVal) / (casHits + casMisses + casBadVal)) * 100 : 0
       report_metric "CacheUse/Cas/Hits", "commands/seconds", @cas_hits.process(casHits)
       report_metric "CacheUse/Cas/Misses", "commands/seconds", @cas_misses.process(casMisses)
       report_metric "CacheUse/Cas/Badval", "commands/seconds", @cas_badval.process(casBadVal)
@@ -117,7 +117,7 @@ module MemcachedAgent
     def report_cacheuse_metrics name, hits, misses, hitCounter, missCounter
       hits = hits.to_f
       misses = misses.to_f
-      percentMisses = (hits > 0 or misses > 0) ? misses / (hits + misses) : 0
+      percentMisses = (hits > 0 or misses > 0) ? (misses / (hits + misses)) * 100 : 0
       report_metric "CacheUse/#{name}/Actions/Hits", "commands/seconds", hitCounter.process(hits)
       report_metric "CacheUse/#{name}/Actions/Misses", "commands/seconds", missCounter.process(misses)
       report_metric "CacheUse/Summary/#{name}/Missed", "percent", percentMisses
