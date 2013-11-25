@@ -1,4 +1,4 @@
-## New Relic Memcached Extension
+## Memcached Ruby Plugin for New Relic
 
 Prerequisites
 -------------
@@ -13,7 +13,7 @@ Running the Agent
 1. Extract the downloaded archive to the location you want to run the Memcached agent from
 1. Run `bundle install` to install required gems
 1. Copy `config/template_newrelic_plugin.yml` to `config/newrelic_plugin.yml`
-1. Edit `config/newrelic_plugin.yml` to point to your instances of Memcached. You can add as many hosts as you'd like If your Memcached instances are bound to an external IP, use that value for the host field.  If you omit the 'port' field it will default to '11211'
+1. Edit `config/newrelic_plugin.yml` with your license key and to point to your instances of Memcached. You can add as many hosts as you'd like If your Memcached instances are bound to an external IP, use that value for the host field.  If you omit the 'port' field it will default to '11211'
 1. Edit the `config/newrelic_plugin.yml` file by changing the name and endpoint fields to match your Memcached server configuration
 1. From your shell run: `./newrelic_memcached_agent`
 1. Wait a few minutes for New Relic to begin processing the data sent from your agent.
