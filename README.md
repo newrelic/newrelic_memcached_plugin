@@ -9,14 +9,15 @@ Prerequisites
 Running the Agent
 ----------------------------------
 
-1. Go to [the tags list](https://github.com/newrelic-platform/newrelic_memcached_plugin/tags) by clicking on the file name and selecting `Raw` from the gray menu bar
+1. Download the latest `newrelic_memcached_plugin-X.Y.Z.tar.gz` from [the tags list](https://github.com/newrelic-platform/newrelic_memcached_plugin/tags)
 1. Extract the downloaded archive to the location you want to run the Memcached agent from
 1. Run `bundle install` to install required gems
 1. Copy `config/template_newrelic_plugin.yml` to `config/newrelic_plugin.yml`
-1. Edit `config/newrelic_plugin.yml` by replacing "YOUR_LICENSE_KEY_HERE" with your New Relic license key
+1. Edit `config/newrelic_plugin.yml` to point to your instances of Memcached. You can add as many hosts as you'd like If your Memcached instances are bound to an external IP, use that value for the host field.  If you omit the 'port' field it will default to '11211'
 1. Edit the `config/newrelic_plugin.yml` file by changing the name and endpoint fields to match your Memcached server configuration
-1. Execute `./newrelic_memcached_agent`
-1. Go back to the Extensions list and after a brief period you will see an entry for 'Memcached'
+1. From your shell run: `./newrelic_memcached_agent`
+1. Wait a few minutes for New Relic to begin processing the data sent from your agent.
+1. Log into your New Relic account at [http://newrelic.com](http://newrelic.com) and click on `Memcached` on the left hand nav bar to start seeing your Memcached metrics
 
 Source Code
 -----------
