@@ -38,9 +38,9 @@ module MemcachedAgent
 
   class Agent < NewRelic::Plugin::Agent::Base
     agent_guid "com.newrelic.plugins.memcached.ruby"
-    agent_version "1.0.0"
-    agent_config_options :endpoint,:port
-    agent_human_labels("Memcached") { "#{endpoint}" }
+    agent_version "1.0.1"
+    agent_config_options :endpoint,:port,:name
+    agent_human_labels("Memcached") { "#{name}" }
 
     def setup_metrics
       @rusage_user = NewRelic::Processor::EpochCounter.new
@@ -96,13 +96,13 @@ module MemcachedAgent
       report_cacheuse_metrics "Incr", stats["incr_hits"], stats["incr_misses"], @incr_hits, @incr_misses
       report_cacheuse_metrics "Decr", stats["decr_hits"], stats["decr_misses"], @decr_hits, @decr_misses
 
-      casHits = stats["cas_hits"].to_f
-      casMisses = stats["cas_misses"].to_f
-      casBadVal = stats["cas_badval"].to_f
+      casHits = @cas_hits.process(stats["cas_hits"])
+      casMisses = @cas_misses.process(stats["cas_misses"])
+      casBadVal = @cas_badval.process(stats["cas_badval"])
       casMissesAndBadVal = (casHits > 0 or casMisses > 0 or casBadVal > 0) ? ((casMisses + casBadVal) / (casHits + casMisses + casBadVal)) * 100 : 0
-      report_metric "CacheUse/Cas/Hits", "commands/seconds", @cas_hits.process(casHits)
-      report_metric "CacheUse/Cas/Misses", "commands/seconds", @cas_misses.process(casMisses)
-      report_metric "CacheUse/Cas/Badval", "commands/seconds", @cas_badval.process(casBadVal)
+      report_metric "CacheUse/Cas/Hits", "commands/seconds", casHits
+      report_metric "CacheUse/Cas/Misses", "commands/seconds", casMisses
+      report_metric "CacheUse/Cas/Badval", "commands/seconds", casBadVal
       report_metric "CacheUse/Summary/Cas/MissedBadval", "percent", casMissesAndBadVal
 
       # Item metrics
@@ -115,9 +115,10 @@ module MemcachedAgent
     end
 
     def report_cacheuse_metrics name, hits, misses, hitCounter, missCounter
-      hits = hits.to_f
-      misses = misses.to_f
-      percentMisses = (hits > 0 or misses > 0) ? (misses / (hits + misses)) * 100 : 0
+      processedHits = hitCounter.process(hits)
+      processedMisses = missCounter.process(misses)
+      percentMisses = (processedHits > 0 or processedMisses > 0) ? (processedMisses / (processedHits + processedMisses)) * 100 : 0
+
       report_metric "CacheUse/#{name}/Actions/Hits", "commands/seconds", hitCounter.process(hits)
       report_metric "CacheUse/#{name}/Actions/Misses", "commands/seconds", missCounter.process(misses)
       report_metric "CacheUse/Summary/#{name}/Missed", "percent", percentMisses
