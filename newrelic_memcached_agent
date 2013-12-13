@@ -119,8 +119,8 @@ module MemcachedAgent
       processedMisses = missCounter.process(misses)
       percentMisses = (processedHits > 0 or processedMisses > 0) ? (processedMisses / (processedHits + processedMisses)) * 100 : 0
 
-      report_metric "CacheUse/#{name}/Actions/Hits", "commands/seconds", hitCounter.process(hits)
-      report_metric "CacheUse/#{name}/Actions/Misses", "commands/seconds", missCounter.process(misses)
+      report_metric "CacheUse/#{name}/Actions/Hits", "commands/seconds", processedHits
+      report_metric "CacheUse/#{name}/Actions/Misses", "commands/seconds", processedMisses
       report_metric "CacheUse/Summary/#{name}/Missed", "percent", percentMisses
     end
 
