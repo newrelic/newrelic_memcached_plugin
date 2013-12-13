@@ -100,9 +100,9 @@ module MemcachedAgent
       casMisses = @cas_misses.process(stats["cas_misses"].to_f)
       casBadVal = @cas_badval.process(stats["cas_badval"].to_f)
       casMissesAndBadVal = (casHits > 0 or casMisses > 0 or casBadVal > 0) ? ((casMisses + casBadVal) / (casHits + casMisses + casBadVal)) * 100 : 0
-      report_metric "CacheUse/Cas/Hits", "commands/seconds", @cas_hits.process(casHits)
-      report_metric "CacheUse/Cas/Misses", "commands/seconds", @cas_misses.process(casMisses)
-      report_metric "CacheUse/Cas/Badval", "commands/seconds", @cas_badval.process(casBadVal)
+      report_metric "CacheUse/Cas/Hits", "commands/seconds", casHits
+      report_metric "CacheUse/Cas/Misses", "commands/seconds", casMisses
+      report_metric "CacheUse/Cas/Badval", "commands/seconds", casBadVal
       report_metric "CacheUse/Summary/Cas/MissedBadval", "percent", casMissesAndBadVal
 
       # Item metrics
