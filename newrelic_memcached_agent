@@ -126,6 +126,8 @@ module MemcachedAgent
 
   end
 
+  NewRelic::Plugin::Config.config_file = File.dirname(__FILE__) + '/config/newrelic_plugin.yml'
+  
   NewRelic::Plugin::Setup.install_agent :memcached,MemcachedAgent
 
   #
