@@ -96,9 +96,9 @@ module MemcachedAgent
       report_cacheuse_metrics "Incr", stats["incr_hits"], stats["incr_misses"], @incr_hits, @incr_misses
       report_cacheuse_metrics "Decr", stats["decr_hits"], stats["decr_misses"], @decr_hits, @decr_misses
 
-      casHits = @cas_hits.process(stats["cas_hits"])
-      casMisses = @cas_misses.process(stats["cas_misses"])
-      casBadVal = @cas_badval.process(stats["cas_badval"])
+      casHits = @cas_hits.process(stats["cas_hits"]).to_i
+      casMisses = @cas_misses.process(stats["cas_misses"]).to_i
+      casBadVal = @cas_badval.process(stats["cas_badval"]).to_i
       casMissesAndBadVal = (casHits > 0 or casMisses > 0 or casBadVal > 0) ? ((casMisses + casBadVal) / (casHits + casMisses + casBadVal)) * 100 : 0
       report_metric "CacheUse/Cas/Hits", "commands/seconds", casHits
       report_metric "CacheUse/Cas/Misses", "commands/seconds", casMisses
@@ -115,8 +115,8 @@ module MemcachedAgent
     end
 
     def report_cacheuse_metrics name, hits, misses, hitCounter, missCounter
-      processedHits = hitCounter.process(hits)
-      processedMisses = missCounter.process(misses)
+      processedHits = hitCounter.process(hits).to_i
+      processedMisses = missCounter.process(misses).to_i
       percentMisses = (processedHits > 0 or processedMisses > 0) ? (processedMisses / (processedHits + processedMisses)) * 100 : 0
 
       report_metric "CacheUse/#{name}/Actions/Hits", "commands/seconds", processedHits
